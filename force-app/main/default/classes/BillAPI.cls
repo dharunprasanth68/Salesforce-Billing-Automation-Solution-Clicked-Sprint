@@ -7,41 +7,49 @@ public with sharing class BillAPI {
         Learn more about HTTPRequest: https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_classes_restful_http_httprequest.htm
         */
 
-        // Set up an Http object and an HTTPResponse object, then use the .getBody() method to get the response body.
+        // Step 2: Send the HTTP request and get the response
+        HTTP http = new HTTP();
+        HttpResponse res = http.send(req);
 
-        // Deserialize the JSON response into a list of BillWrapper objects.
-        // Learn more about JSON.deserialize: https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_Json.htm#apex_System_Json_deserialize
+        // Step 3: Deserialize the JSON response into a Wrapper class object
+        BillsResponseWrapper responseWrapper = (BillsResponseWrapper) JSON.deserialize(res.getBody(), BillsResponseWrapper.class);
 
-        // Create a list to hold the bills we will insert into Salesforce.
+        // Step 4: Create a list to hold the bills we will insert into Salesforce.
+        List<Bill__c> newBills = new List<Bill__c>();
 
-        // Query for active accounts (Active__c = 'Yes').
-        // Learn more about SOQL: https://trailhead.salesforce.com/en/content/learn/modules/apex_database/apex_database_soql
+        // Step 5: Query for active accounts (Active__c = 'Yes').
+        Map<String, Id> activeAccountMap = new Map<String, Id>();
+        List<Account> activeAccounts = [SELECT Id, Name FROM Account WHERE Active__c = 'Yes'];
 
-        // Create a map to hold active account names and their IDs.
-        // Learn more about Maps: https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_methods_system_map.htm
+        // Step 6: Create a map to hold active account names and their IDs.
+        for (Account acc : activeAccounts) {
+            activeAccountMap.put(acc.Name, acc.Id);
+        }
 
-        // Iterate over the list of active accounts and add their name and ID to the map.
+        // Step 7: Iterate over the list of BillWrapper objects and create new Bill__c records.
+        for (BillWrapper bw : responseWrapper.bills) {
+            if (activeAccountMap.containsKey(bw.accountName)) {
+                Bill__c newBill = new Bill__c();
+                newBill.Account__c = activeAccountMap.get(bw.accountName);  // Link to Account by Name
+                newBill.Balance__c = Decimal.valueOf(bw.balance.replace('$', ''));  // Convert balance to Decimal
+                newBill.Invoice_Number__c = bw.billId;  // Assuming Bill_Number__c is a custom field
+                
+                newBills.add(newBill);
+            }
+        }
 
-
-        /*
-        Iterate over the list of BillWrapper objects and create a new Bill__c record for each.
-        Match the new bill fields with the properties of the BillWrapper class.
-        For example, for Bill__c.Balance__c, use Decimal.valueOf(bw.balance.replace('$', '')) to convert the balance to a decimal.
-        Remember, DML (Data Manipulation Language) operations should not be inside loops. Learn more about DML: https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dml_section.htm
-        */
-
-
-        //finally, insert the new bills list
+        // Step 8: Finally, insert the new bills list (DML operation).
+        if (!newBills.isEmpty()) {
+            insert newBills;
+        }
     }
 
-    /*  
-    This is a wrapper class. A wrapper class allows us to create an instance of a class with the properties we specify.
-    In this case, we are creating a class that will hold the properties for BillId, AccountName, and Balance.
-    These properties will be populated from the JSON structure stored in our external data source.
-    Once we get the body of our HTTP callout, we will use the following line of code to transform the response body into a list of instances of our wrapper class, BillWrapper:
-    List<BillWrapper> bwList = (List<BillWrapper>)JSON.deserialize(responseBody, List<BillWrapper>.class);
-    Once we have a list of BillWrapper objects (bwList), we will iterate over the bwList, create a new Bill__c record, and assign the values of the BillWrapper properties to the fields on the Bill__c record.
-    */
+    // Wrapper class for the entire JSON response
+    public class BillsResponseWrapper {
+        public List<BillWrapper> bills;
+    }
+
+    // Wrapper class to represent the structure of each bill in the JSON response
     public class BillWrapper {
         public String billId;
         public String accountName;
