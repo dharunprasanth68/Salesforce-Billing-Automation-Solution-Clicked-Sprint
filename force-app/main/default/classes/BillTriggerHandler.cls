@@ -91,5 +91,5 @@ public with sharing class BillTriggerHandler {
        } else {
            System.debug('No Opportunities to insert.');
        }
-   }
+    }
 }
