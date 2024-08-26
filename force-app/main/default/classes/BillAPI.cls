@@ -1,5 +1,10 @@
 public with sharing class BillAPI {
     public static void getBills() {
+
+        // Step 1: Create an HttpRequest object and set the endpoint and method.
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('https://my-json-server.typicode.com/grizzleevelyn/231017_dev_clicked/db');
+        req.setMethod('GET');
         /* 
         Start by creating an HttpRequest object and set the endpoint and method.
         Endpoint: https://my-json-server.typicode.com/walters954/clicked-intro-development-server/bills
