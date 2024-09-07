@@ -6,7 +6,7 @@
 //     SFDX: Execute Anonymous Apex with Editor Contents
 BillAPI.getBills();
 BillBatch batch = new BillBatch();
-Id batchId = Database.executeBatch(batch);
+Id batchId = Database.executeBatch(batch, 10); // Use a smaller batch size like 10
 System.debug(batchId);
 
 // string tempvar = 'Enter_your_name_here';
