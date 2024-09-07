@@ -1,0 +1,28 @@
+<template>
+    <lightning-card title="Bills List">
+        <h1 class="slds-text-body_small">List of Bills</h1>
+
+        <!-- Search Input -->
+        <lightning-input
+            label="Search"
+            value={searchKey}
+            onchange={handleSearch}
+            placeholder="Search by Invoice Number or Account Name"
+            type="search">
+        </lightning-input>
+
+        <!-- Data Table to display bills -->
+        <template if:true={billList}>
+            <lightning-datatable
+                data={billList}
+                columns={columns}
+                key-field="Id">
+            </lightning-datatable>
+        </template>
+
+        <!-- No record found message -->
+        <template if:true={noRecordFound}>
+            <p>No Bills found</p>
+        </template>
+    </lightning-card>
+</template>
