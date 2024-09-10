@@ -41,7 +41,7 @@ public with sharing class BillBatch implements Database.Batchable<sObject>, Data
             }
         }
 
-        // New structure: Map of email to a list of Blob PDFs
+        // Map of email to a list of Blob PDFs
         Map<String, List<Blob>> sendMap = new Map<String, List<Blob>>();
 
         for (Id accId : billMap.keySet()) {

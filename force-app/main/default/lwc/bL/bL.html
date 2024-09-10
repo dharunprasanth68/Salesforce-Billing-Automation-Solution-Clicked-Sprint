@@ -1,6 +1,5 @@
 <template>
-    <lightning-card title="Bills List">
-        <h1 class="slds-text-body_small">List of Bills</h1>
+    <lightning-card title="List of Bills">
 
         <!-- Search Input -->
         <lightning-input
@@ -19,6 +18,7 @@
                 key-field="Id">
             </lightning-datatable>
         </template>
+        
 
         <!-- No record found message -->
         <template if:true={noRecordFound}>

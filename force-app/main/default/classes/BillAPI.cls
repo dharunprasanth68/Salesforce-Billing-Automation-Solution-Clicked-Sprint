@@ -3,11 +3,11 @@ public with sharing class BillAPI {
 
         // Step 1: Create an HttpRequest object and set the endpoint and method.
         HttpRequest req = new HttpRequest();
-        req.setEndpoint('callout:billendpoint/db');
+        req.setEndpoint('https://my-json-server.typicode.com/grizzleevelyn/231017_dev_clicked/db');
         req.setMethod('GET');
         /* 
         Start by creating an HttpRequest object and set the endpoint and method.
-        Endpoint: https://my-json-server.typicode.com/walters954/clicked-intro-development-server/bills
+        Endpoint: pos
         Method: GET
         Learn more about HTTPRequest: https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_classes_restful_http_httprequest.htm
         */
@@ -21,7 +21,6 @@ public with sharing class BillAPI {
 
         // Create a list to hold the bills we will insert into Salesforce.
         List<Bill__c> newBills = new List<Bill__c>();
-
         // Query for active accounts (Active__c = 'Yes').
         Map<String, Id> activeAccountMap = new Map<String, Id>();
         List<Account> activeAccounts = [SELECT Id, Name FROM Account WHERE Active__c = 'Yes'];
@@ -48,12 +47,10 @@ public with sharing class BillAPI {
             insert newBills;
         }
     }
-
     // Wrapper class for the entire JSON response
     public class BillsResponseWrapper {
         public List<BillWrapper> bills;
     }
-
     // Wrapper class to represent the structure of each bill in the JSON response
     public class BillWrapper {
         public String billId;

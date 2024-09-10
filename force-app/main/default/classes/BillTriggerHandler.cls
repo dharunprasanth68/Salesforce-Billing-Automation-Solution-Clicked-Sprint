@@ -92,4 +92,46 @@ public with sharing class BillTriggerHandler {
            System.debug('No Opportunities to insert.');
        }
     }
+    public static void updateBillWithOpportunity(List<Bill__c> bills) {
+        // Set to store Account Ids to fetch newly created Opportunities
+        Set<Id> accountIds = new Set<Id>();
+        for (Bill__c bill : bills) {
+            if (bill.Account__c != null) {
+                accountIds.add(bill.Account__c);
+            }
+        }
+    
+        // Query the newly created Opportunities related to these Accounts
+        Map<Id, Opportunity> accountOpenOppMap = new Map<Id, Opportunity>();
+        for (Opportunity opp : [SELECT Id, AccountId FROM Opportunity WHERE AccountId IN :accountIds AND StageName = 'Prospecting' ORDER BY CreatedDate DESC]) {
+            accountOpenOppMap.put(opp.AccountId, opp);
+        }
+    
+        // List to hold the bills that need to be updated
+        List<Bill__c> billsToUpdate = new List<Bill__c>();
+    
+        // Update the Bill's Opportunity__c field with the newly created Opportunity
+        for (Bill__c bill : bills) {
+            if (bill.Opportunity__c == null && accountOpenOppMap.containsKey(bill.Account__c)) {
+                Opportunity newOpportunity = accountOpenOppMap.get(bill.Account__c);
+                Bill__c billToUpdate = new Bill__c(
+                    Id = bill.Id,  // Use the Id of the current bill
+                    Opportunity__c = newOpportunity.Id  // Assign the newly created Opportunity
+                );
+                billsToUpdate.add(billToUpdate);
+            }
+        }
+    
+        // Perform the update if there are Bills to update
+        if (!billsToUpdate.isEmpty()) {
+            try {
+                update billsToUpdate;
+                System.debug('Updated Bills with Opportunity: ' + billsToUpdate);
+            } catch (Exception e) {
+                System.debug('Failed to update Bills: ' + e.getMessage());
+            }
+        }
+    }
+    
+    
 }

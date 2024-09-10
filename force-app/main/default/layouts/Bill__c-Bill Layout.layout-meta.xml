@@ -15,7 +15,7 @@
                 <field>Invoice_Number__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
+                <behavior>Edit</behavior>
                 <field>Account__c</field>
             </layoutItems>
             <layoutItems>
